@@ -27,8 +27,8 @@ describe JenkinsApiCaller do
           credentials: credentials(password: 'password'),
           params: { foo: 'bar' }
         )
-        rescue Faraday::ResourceNotFound
-        end
+      rescue Faraday::ResourceNotFound
+      end
       assert_requested :post, build_url_for('foobar')
     end
 
@@ -41,16 +41,20 @@ describe JenkinsApiCaller do
     end
 
     it 'propagates the parameters' do
-      expect(build_status.dig('actions', 0, 'parameters', 0, 'value')).to eq 'test'
+      expect(
+        build_status.dig('actions', 0, 'parameters', 0, 'value')
+      ).to eq 'test'
     end
   end
 
   context 'when incorrect credentials are provided' do
     it 'returns an error' do
       expect do
-        described_class.run_job(
-          job_defaults.merge(credentials: credentials(password: 'incorrect password'))
-        )
+        described_class.run_job(job_defaults.merge(
+                                  credentials: credentials(
+                                    password: 'incorrect password'
+                                  )
+                                ))
       end.to raise_error Faraday::ClientError
     end
   end
