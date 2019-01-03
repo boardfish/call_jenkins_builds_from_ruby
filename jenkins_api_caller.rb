@@ -26,12 +26,17 @@ module JenkinsApiCaller
       response.status == 200 ? response.body : nil
     end
 
+    def header(string, index)
+      split_string = string.split(':')
+      split_string[[index, split_string.length - 1].min]
+    end
+
     def connection(host: 'http://jenkins:8080', username: nil, password: nil, crumb: nil)
       Faraday.new(url: host) do |faraday|
         faraday.use Faraday::Response::RaiseError
         faraday.adapter Faraday.default_adapter
         faraday.basic_auth(username, password) if username && password
-        faraday.headers[crumb.split(':')[0]] = crumb.split(':')[1] if crumb # FIXME: not robust yet!
+        faraday.headers[header(crumb, 0)] = header(crumb, 1) if crumb
       end
     end
   end
