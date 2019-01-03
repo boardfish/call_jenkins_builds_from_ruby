@@ -2,5 +2,5 @@ language: ruby
 rvm:
   - 2.6
 script:
- - bundle exec rspec
+ - bundle exec rspec jenkins_api_caller_spec.rb
 cache: bundler
