@@ -1,80 +1,48 @@
-require_relative 'jenkins_api_caller'
+require 'jenkins_api_client'
 require 'rspec'
 require 'webmock/rspec'
 require 'faraday'
 
 WebMock.allow_net_connect!
 
-describe JenkinsApiCaller do
+describe 'JenkinsApiCaller' do
   context 'when correct credentials are provided' do
-    let!(:created_job) do
-      described_class.run_job(job_defaults.merge(params: { foo: 'test' }))
-    end
-    let(:build_status) { described_class.build_status(job_defaults) }
-
-    it 'authenticates against the Jenkins API' do
-      expect(described_class.crumb(credentials)).to be_a String
+    before(:all) do
+      @build_result = build_job
     end
 
     it 'makes a call to the Jenkins API' do
       assert_requested :post, build_url_for('hello-world')
     end
 
-    it 'calls the correct job' do
-      begin
-        described_class.run_job(
-          job_name: 'foobar',
-          credentials: credentials(password: 'password'),
-          params: { foo: 'bar' }
-        )
-      rescue Faraday::ResourceNotFound
-      end
-      assert_requested :post, build_url_for('foobar')
-    end
-
     it 'creates a run of the job' do
-      expect(created_job.status).to eq(302)
+      expect(@build_result[:progress_tracked]).to be true
     end
 
     it 'returns the result of the job' do
-      expect(build_status).to be_a Hash
-    end
-
-    it 'propagates the parameters' do
-      expect(
-        build_status.dig('actions', 0, 'parameters', 0, 'value')
-      ).to eq 'test'
-    end
-  end
-
-  context 'when incorrect credentials are provided' do
-    it 'returns an error' do
-      expect do
-        described_class.run_job(job_defaults.merge(
-                                  credentials: credentials(
-                                    password: 'incorrect password'
-                                  )
-                                ))
-      end.to raise_error Faraday::ClientError
+      expect(@build_result[:completion_seen]).to be true
     end
   end
 end
 
-def credentials(password: 'password')
-  {
-    username: 'user',
-    password: password,
-    host: 'http://jenkins:8080'
-  }
+def build_job
+  build_result = { progress_tracked: false, completion_seen: false }
+  build_result[:build_id] = client.job.build(
+    'hello-world',
+    { 'foo' => 'bar' },
+    'build_start_timeout' => 30,
+    'progress_proc' => ->(*_args) { build_result[:progress_tracked] = true },
+    'completion_proc' => ->(*_args) { build_result[:completion_seen] = true }
+  )
+  build_result
 end
 
-def job_defaults
-  {
-    credentials: credentials,
-    job_name: 'hello-world'
-  }
+def client
+  JenkinsApi::Client.new(server_ip: 'jenkins',
+                         username: 'admin',
+                         password: '8de21949451b4d6e86bc9d6b25be48ad')
 end
 
 def build_url_for(job_name)
-  "http://jenkins:8080/job/#{job_name}/build"
+  "http://jenkins:8080/job/#{job_name}/buildWithParameters"
 end
