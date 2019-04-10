@@ -10,6 +10,10 @@ services:
       context: ./
       dockerfile: ./Dockerfile
     command: 'ruby seed_script.rb'
+    volumes:
+      - "${PWD}/jenkins_api_caller_spec.rb:/jenkins_api_caller_spec.rb"
+      - "${PWD}/jenkins_api_caller.rb:/jenkins_api_caller.rb"
+      - "${PWD}/seed_script.rb:/seed_script.rb"
   sso:
     image: registry.access.redhat.com/redhat-sso-7/sso72-openshift
     # env_file:
