@@ -5,6 +5,8 @@ services:
     ports:
       - 11037:8080
       - 50000:50000
+    volumes:
+      - ./volumes/jenkins_home:/var/jenkins_home
   ruby:
     build:
       context: ./
@@ -14,14 +16,4 @@ services:
       - "${PWD}/jenkins_api_caller_spec.rb:/jenkins_api_caller_spec.rb"
       - "${PWD}/jenkins_api_caller.rb:/jenkins_api_caller.rb"
       - "${PWD}/seed_script.rb:/seed_script.rb"
-  sso:
-    image: registry.access.redhat.com/redhat-sso-7/sso72-openshift
-    # env_file:
-      # - '.sso_credentials.env'
-    ports:
-      - "8080:8080"
-    environment:
-      - SSO_ADMIN_USERNAME=user
-      - SSO_ADMIN_PASSWORD=password
-      - JAVA_OPTS_APPEND=-Dkeycloak.profile=preview
 version: '3.3'
