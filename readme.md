@@ -4,7 +4,7 @@ This small container environment gives you a Jenkins instance you can configure,
 
 ## Setup
 
-Bring up the environment with `docker-compose up -d`. After Jenkins takes its time to set up, you'll be asked to log in. Use the username `admin` and supply a password stored on the Jenkins container. Quickly retrieve this with `dc exec jenkins cat /var/jenkins_home/secrets/initialAdminPassword | pbcopy`. (Use `xclip -sel clip` over `pbcopy` on Linux.) The password will be on your clipboard, ready to paste in.
+Bring up the environment with `docker-compose up -d`. Open `http://localhost:11037` in your browser. After Jenkins takes its time to set up, you'll be asked to log in. Use the username `admin` and supply a password stored on the Jenkins container. Quickly retrieve this with `docker-compose exec jenkins cat /var/jenkins_home/secrets/initialAdminPassword | pbcopy`. (Use `xclip -sel clip` over `pbcopy` on Linux.) The password will be on your clipboard, ready to paste in.
 
 Once Jenkins is ready, there should be a pipeline named `hello-world`.
 
