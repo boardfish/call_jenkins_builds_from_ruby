@@ -40,7 +40,7 @@ end
 def client
   JenkinsApi::Client.new(server_ip: 'jenkins',
                          username: 'admin',
-                         password: '187298b83a32494b9f0a0c3b78b3e2d5')
+                         password: '11f9508656bcd9d194d7975501ec84ad54')
 end
 
 def build_url_for(job_name)
